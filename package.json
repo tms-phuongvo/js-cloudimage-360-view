@@ -1,13 +1,13 @@
 {
-  "name": "tms-360-view",
-  "version": "1.0.0",
+  "name": "tms-360",
+  "version": "1.0.13",
   "main": "dist/index.js",
   "description": "",
-  "author": "scaleflex",
+  "author": "tms-phuongvo",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/scaleflex/js-cloudimage-360-view"
+    "url": "https://github.com/tms-phuongvo/js-cloudimage-360-view"
   },
   "homepage": "#readme",
   "keywords": [
@@ -36,6 +36,7 @@
   "dependencies": {
     "@babel/runtime": "^7.17.0",
     "@popperjs/core": "^2.11.2",
+    "babel-plugin-transform-remove-strict-mode": "^0.0.2",
     "core-js": "^3.0.0"
   },
   "devDependencies": {
@@ -60,7 +61,7 @@
     "mini-css-extract-plugin": "^0.9.0",
     "mobile-detect": "^1.4.3",
     "style-loader": "^3.3.2",
-    "webpack": "^5.79.0",
+    "webpack": "5.79.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.13.3"
   }

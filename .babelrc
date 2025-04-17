@@ -14,7 +14,8 @@
   ],
   "plugins": [
     "array-includes",
-    "@babel/plugin-transform-runtime"
+    "@babel/plugin-transform-runtime",
+    "transform-remove-strict-mode"
   ],
   "env": {
     "production": {

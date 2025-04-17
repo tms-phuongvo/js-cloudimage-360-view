@@ -1,13 +1,7 @@
-import {
-  get360ViewProps,
-  setView360Icon,
-} from './ci360.utils';
-import {
-  ORIENTATIONS,
-  AUTOPLAY_BEHAVIOR,
-} from './constants/';
-import './static/css/style.css';
-import './static/css/hotspots.css';
+import { get360ViewProps, setView360Icon } from "./ci360.utils";
+import { ORIENTATIONS, AUTOPLAY_BEHAVIOR } from "./constants/";
+import "./static/css/style.css";
+import "./static/css/hotspots.css";
 import {
   generateImagesPath,
   preloadImages,
@@ -45,9 +39,9 @@ import {
   isPropsChangeRequireReload,
   getImageAspectRatio,
   removeChildFromParent,
-  initLazyload,
-} from './utils';
-import { togglePopupEvents } from './utils/hotspots/toggle-popup-events';
+  initLazyload
+} from "./utils";
+import { togglePopupEvents } from "./utils/hotspots/toggle-popup-events";
 
 class CI360Viewer {
   constructor(container, fullscreen, hotspotsConfigs) {
@@ -68,9 +62,10 @@ class CI360Viewer {
     this.resizedImagesX = [];
     this.resizedImagesY = [];
     this.devicePixelRatio = Math.round(window.devicePixelRatio || 1);
-    this.isMobile = !!('ontouchstart' in window || navigator.msMaxTouchPoints);
+    this.isMobile = !!("ontouchstart" in window || navigator.msMaxTouchPoints);
     this.id = container.id;
-    this.hotspotsConfigs = hotspotsConfigs && generateHotspotsConfigs(hotspotsConfigs);
+    this.hotspotsConfigs =
+      hotspotsConfigs && generateHotspotsConfigs(hotspotsConfigs);
     this.isMagnifyOpen = false;
     this.isDragged = false;
     this.startPointerZoom = false;
@@ -79,13 +74,14 @@ class CI360Viewer {
     this.intialPositions = { x: 0, y: 0 };
     this.pointerCurrentPosition = { x: 0, y: 0 };
     this.isStartedLoadOriginalImages = false;
+    this.showIndex = 0;
     this.init(container);
   }
 
   isReady() {
     const totalAmount = this.amountX + this.amountY;
 
-    return (this.imagesX.length + this.imagesY.length) === totalAmount;
+    return this.imagesX.length + this.imagesY.length === totalAmount;
   }
 
   mouseDown(event) {
@@ -147,12 +143,12 @@ class CI360Viewer {
       }, 50);
 
       if (this.mouseTracked) {
-        this.container.style.cursor = 'zoom-out';
+        this.container.style.cursor = "zoom-out";
       } else {
-        this.container.style.cursor = 'zoom-in';
+        this.container.style.cursor = "zoom-in";
       }
     } else {
-      this.container.style.cursor = 'grab';
+      this.container.style.cursor = "grab";
     }
   }
 
@@ -162,13 +158,17 @@ class CI360Viewer {
     this.setCursorPosition(event);
     this.hideInitialIcons();
 
-    if (!this.isStartedLoadOriginalImages && !this.isDragged && this.isZoomReady) {
+    if (
+      !this.isStartedLoadOriginalImages &&
+      !this.isDragged &&
+      this.isZoomReady
+    ) {
       this.prepareOriginalImages(event);
     }
 
     if (this.isAllOriginalImagesLoaded && !this.isDragged && this.isZoomReady) {
       this.togglePointerZoom(event);
-    };
+    }
   }
 
   mouseMove(event) {
@@ -187,7 +187,7 @@ class CI360Viewer {
     if (this.isClicked) {
       const nextPositions = { x: pageX, y: pageY };
 
-      this.container.style.cursor = 'grabbing';
+      this.container.style.cursor = "grabbing";
       this.isDragged = true;
       this.movingDirection = getMovingDirection(
         this.isStartSpin,
@@ -221,21 +221,21 @@ class CI360Viewer {
 
     if (this.mouseTracked) {
       const zoomSteps = generateZoomOutSteps(this.pointerZoom);
-      this.container.style.cursor = 'zoom-in';
+      this.container.style.cursor = "zoom-in";
 
       zoomSteps.forEach((step, index) => {
         setTimeout(() => {
           this.zoomIntensity = step;
           this.update();
 
-          const isReachedIntialScale = index === (zoomSteps.length - 1);
+          const isReachedIntialScale = index === zoomSteps.length - 1;
 
           if (isReachedIntialScale) {
             this.mouseTracked = false;
             this.update();
-          };
+          }
         }, (this.pointerZoom - step) * 200);
-      })
+      });
     } else {
       if (this.bottomCircle) this.hide360ViewCircleIcon();
 
@@ -250,10 +250,10 @@ class CI360Viewer {
           this.zoomIntensity = step;
           this.update();
         }, step * 200);
-      })
+      });
 
       this.mouseTracked = true;
-      this.container.style.cursor = 'zoom-out';
+      this.container.style.cursor = "zoom-out";
     }
   }
 
@@ -264,19 +264,18 @@ class CI360Viewer {
       this.originalImagesX[index] = image;
     }
 
-    const loadedOriginalXImages = this.originalImagesX
-      .filter(image => image);
-    const loadedOriginalYImages = this.originalImagesY
-      .filter(image => image);
+    const loadedOriginalXImages = this.originalImagesX.filter((image) => image);
+    const loadedOriginalYImages = this.originalImagesY.filter((image) => image);
 
     const totalAmount = this.amountX + this.amountY;
-    const totalLoadedImages = loadedOriginalXImages.length + loadedOriginalYImages.length;
+    const totalLoadedImages =
+      loadedOriginalXImages.length + loadedOriginalYImages.length;
 
-    const isAllImagesLoaded = (
-      loadedOriginalXImages.length + loadedOriginalYImages.length === this.amountX + this.amountY
-    );
+    const isAllImagesLoaded =
+      loadedOriginalXImages.length + loadedOriginalYImages.length ===
+      this.amountX + this.amountY;
 
-    const percentage = Math.round(totalLoadedImages / totalAmount * 100);
+    const percentage = Math.round((totalLoadedImages / totalAmount) * 100);
 
     this.updatePercentageInLoader(percentage);
 
@@ -294,7 +293,7 @@ class CI360Viewer {
 
     this.isStartedLoadOriginalImages = true;
     this.loader = createLoader(this.innerBox);
-    this.container.style.cursor = 'wait';
+    this.container.style.cursor = "wait";
 
     preloadOriginalImages(
       this.srcXConfig,
@@ -325,8 +324,14 @@ class CI360Viewer {
       this.autoplay = false;
     }
 
-    this.intialPositions = { x: event.touches[0].clientX, y: event.touches[0].clientY };
-    this.movementStart = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+    this.intialPositions = {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY
+    };
+    this.movementStart = {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY
+    };
     this.isClicked = true;
 
     if (isMouseOnHotspotElement) {
@@ -351,7 +356,10 @@ class CI360Viewer {
       event.preventDefault();
     }
 
-    const nextPositions = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+    const nextPositions = {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY
+    };
 
     this.movingDirection = getMovingDirection(
       this.isStartSpin,
@@ -371,7 +379,8 @@ class CI360Viewer {
       this.closeMagnifier();
     }
 
-    if (event.keyCode === 27) { //ESC
+    if (event.keyCode === 27) {
+      //ESC
       if (this.mouseTracked) {
         this.togglePointerZoom();
       }
@@ -413,13 +422,15 @@ class CI360Viewer {
       this.closeMagnifier();
     }
 
-    if (event.keyCode === 37) { // left
+    if (event.keyCode === 37) {
+      // left
       this.keysReverse ? this.left() : this.right();
 
       this.onSpin();
     }
 
-    if (event.keyCode === 39) { // right
+    if (event.keyCode === 39) {
+      // right
       this.keysReverse ? this.right() : this.left();
 
       this.onSpin();
@@ -428,13 +439,15 @@ class CI360Viewer {
     if (this.allowSpinY) {
       event.preventDefault();
 
-      if (event.keyCode === 38) { // up
+      if (event.keyCode === 38) {
+        // up
         this.keysReverse ? this.top() : this.bottom();
 
         this.onSpin();
       }
 
-      if (event.keyCode === 40) { // down
+      if (event.keyCode === 40) {
+        // down
         this.keysReverse ? this.bottom() : this.top();
 
         this.onSpin();
@@ -470,7 +483,9 @@ class CI360Viewer {
   }
 
   moveActiveIndexUp(itemsSkipped) {
-    const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
+    const isReverse = this.controlReverse
+      ? !this.spinReverse
+      : this.spinReverse;
 
     if (this.stopAtEdges) {
       const isReachedTheEdge = this.activeImageX + itemsSkipped >= this.amountX;
@@ -479,24 +494,28 @@ class CI360Viewer {
         this.activeImageX = this.amountX;
 
         if (isReverse ? this.leftElem : this.rightElem) {
-          addClass(isReverse ? this.leftElem : this.rightElem, 'not-active');
+          addClass(isReverse ? this.leftElem : this.rightElem, "not-active");
         }
       } else {
         this.activeImageX += itemsSkipped;
 
-        if (this.rightElem) removeClass(this.rightElem, 'not-active');
+        if (this.rightElem) removeClass(this.rightElem, "not-active");
 
-        if (this.leftElem) removeClass(this.leftElem, 'not-active');
+        if (this.leftElem) removeClass(this.leftElem, "not-active");
       }
     } else {
-      this.activeImageX = (this.activeImageX + itemsSkipped) % this.amountX || this.amountX;
+      this.activeImageX =
+        (this.activeImageX + itemsSkipped) % this.amountX || this.amountX;
 
-      if (this.activeImageX === this.amountX && this.allowSpinY) this.spinY = true;
+      if (this.activeImageX === this.amountX && this.allowSpinY)
+        this.spinY = true;
     }
   }
 
   moveActiveIndexDown(itemsSkipped) {
-    const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
+    const isReverse = this.controlReverse
+      ? !this.spinReverse
+      : this.spinReverse;
 
     if (this.stopAtEdges) {
       const isReachedTheEdge = this.activeImageX - itemsSkipped <= 1;
@@ -505,14 +524,14 @@ class CI360Viewer {
         this.activeImageX = 1;
 
         if (isReverse ? this.rightElem : this.leftElem) {
-          addClass(isReverse ? this.rightElem : this.leftElem, 'not-active');
+          addClass(isReverse ? this.rightElem : this.leftElem, "not-active");
         }
       } else {
         this.activeImageX -= itemsSkipped;
 
-        if (this.leftElem) removeClass(this.leftElem, 'not-active');
+        if (this.leftElem) removeClass(this.leftElem, "not-active");
 
-        if (this.rightElem) removeClass(this.rightElem, 'not-active');
+        if (this.rightElem) removeClass(this.rightElem, "not-active");
       }
     } else {
       if (this.activeImageX - itemsSkipped < 1) {
@@ -525,7 +544,9 @@ class CI360Viewer {
   }
 
   moveActiveYIndexUp(itemsSkipped) {
-    const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
+    const isReverse = this.controlReverse
+      ? !this.spinReverse
+      : this.spinReverse;
 
     if (this.stopAtEdges) {
       const isReachedTheEdge = this.activeImageY + itemsSkipped >= this.amountY;
@@ -534,24 +555,27 @@ class CI360Viewer {
         this.activeImageY = this.amountY;
 
         if (isReverse ? this.bottomElem : this.topElem) {
-          addClass(isReverse ? this.bottomElem : this.topElem, 'not-active');
+          addClass(isReverse ? this.bottomElem : this.topElem, "not-active");
         }
       } else {
         this.activeImageY += itemsSkipped;
 
-        if (this.topElem) removeClass(this.topElem, 'not-active');
+        if (this.topElem) removeClass(this.topElem, "not-active");
 
-        if (this.bottomElem) removeClass(this.bottomElem, 'not-active');
+        if (this.bottomElem) removeClass(this.bottomElem, "not-active");
       }
     } else {
-      this.activeImageY = (this.activeImageY + itemsSkipped) % this.amountY || this.amountY;
+      this.activeImageY =
+        (this.activeImageY + itemsSkipped) % this.amountY || this.amountY;
 
       if (this.activeImageY === this.amountY) this.spinY = false;
     }
   }
 
   moveActiveYIndexDown(itemsSkipped) {
-    const isReverse = this.controlReverse ? !this.spinReverse : this.spinReverse;
+    const isReverse = this.controlReverse
+      ? !this.spinReverse
+      : this.spinReverse;
 
     if (this.stopAtEdges) {
       const isReachedTheEdge = this.activeImageY - itemsSkipped <= 1;
@@ -560,13 +584,13 @@ class CI360Viewer {
         this.activeImageY = 1;
 
         if (isReverse ? this.topElem : this.bottomElem) {
-          addClass(isReverse ? this.topElem : this.bottomElem, 'not-active');
+          addClass(isReverse ? this.topElem : this.bottomElem, "not-active");
         }
       } else {
         this.activeImageY -= itemsSkipped;
 
-        if (this.bottomElem) removeClass(this.bottomElem, 'not-active');
-        if (this.topElem) removeClass(this.topElem, 'not-active');
+        if (this.bottomElem) removeClass(this.bottomElem, "not-active");
+        if (this.topElem) removeClass(this.topElem, "not-active");
       }
     } else {
       if (this.activeImageY - itemsSkipped < 1) {
@@ -579,9 +603,14 @@ class CI360Viewer {
   }
 
   moveRight(currentPositionX) {
-    const itemsSkippedRight = getItemSkipped(currentPositionX, this.movementStart.x, this.speedFactor);
+    const itemsSkippedRight = getItemSkipped(
+      currentPositionX,
+      this.movementStart.x,
+      this.speedFactor
+    );
 
-    this.spinReverse ? this.moveActiveIndexDown(itemsSkippedRight)
+    this.spinReverse
+      ? this.moveActiveIndexDown(itemsSkippedRight)
       : this.moveActiveIndexUp(itemsSkippedRight);
 
     this.movementStart.x = currentPositionX;
@@ -590,9 +619,14 @@ class CI360Viewer {
   }
 
   moveLeft(currentPositionX) {
-    const itemsSkippedLeft = getItemSkipped(this.movementStart.x, currentPositionX, this.speedFactor);
+    const itemsSkippedLeft = getItemSkipped(
+      this.movementStart.x,
+      currentPositionX,
+      this.speedFactor
+    );
 
-    this.spinReverse ? this.moveActiveIndexUp(itemsSkippedLeft)
+    this.spinReverse
+      ? this.moveActiveIndexUp(itemsSkippedLeft)
       : this.moveActiveIndexDown(itemsSkippedLeft);
 
     this.activeImageY = 1;
@@ -601,9 +635,14 @@ class CI360Viewer {
   }
 
   moveTop(currentPositionY) {
-    const itemsSkippedTop = getItemSkipped(this.movementStart.y, currentPositionY, this.speedFactor);
+    const itemsSkippedTop = getItemSkipped(
+      this.movementStart.y,
+      currentPositionY,
+      this.speedFactor
+    );
 
-    this.spinReverse ? this.moveActiveYIndexUp(itemsSkippedTop)
+    this.spinReverse
+      ? this.moveActiveYIndexUp(itemsSkippedTop)
       : this.moveActiveYIndexDown(itemsSkippedTop);
 
     this.activeImageX = 1;
@@ -612,9 +651,14 @@ class CI360Viewer {
   }
 
   moveBottom(currentPositionY) {
-    const itemsSkippedBottom = getItemSkipped(currentPositionY, this.movementStart.y, this.speedFactor);
+    const itemsSkippedBottom = getItemSkipped(
+      currentPositionY,
+      this.movementStart.y,
+      this.speedFactor
+    );
 
-    this.spinReverse ? this.moveActiveYIndexDown(itemsSkippedBottom)
+    this.spinReverse
+      ? this.moveActiveYIndexDown(itemsSkippedBottom)
       : this.moveActiveYIndexUp(itemsSkippedBottom);
 
     this.activeImageX = 1;
@@ -623,13 +667,21 @@ class CI360Viewer {
   }
 
   onMoveHandler(event) {
-    const currentPositionX = this.isMobile ? event.touches[0].clientX : event.pageX;
-    const currentPositionY = this.isMobile ? event.touches[0].clientY : event.pageY;
+    const currentPositionX = this.isMobile
+      ? event.touches[0].clientX
+      : event.pageX;
+    const currentPositionY = this.isMobile
+      ? event.touches[0].clientY
+      : event.pageY;
 
-    const isMoveRight = currentPositionX - this.movementStart.x >= this.speedFactor;
-    const isMoveLeft = this.movementStart.x - currentPositionX >= this.speedFactor;
-    const isMoveTop = this.movementStart.y - currentPositionY >= this.speedFactor;
-    const isMoveBottom = currentPositionY - this.movementStart.y >= this.speedFactor;
+    const isMoveRight =
+      currentPositionX - this.movementStart.x >= this.speedFactor;
+    const isMoveLeft =
+      this.movementStart.x - currentPositionX >= this.speedFactor;
+    const isMoveTop =
+      this.movementStart.y - currentPositionY >= this.speedFactor;
+    const isMoveBottom =
+      currentPositionY - this.movementStart.y >= this.speedFactor;
 
     if (this.bottomCircle) this.hide360ViewCircleIcon();
 
@@ -690,7 +742,7 @@ class CI360Viewer {
       right: this.right.bind(this),
       top: this.top.bind(this),
       bottom: this.bottom.bind(this)
-    }
+    };
 
     loop(this.autoplayBehavior, this.spinY, reversed, loopTriggers);
   }
@@ -700,24 +752,26 @@ class CI360Viewer {
 
     if (this.fullscreenView) {
       this.container.width = window.innerWidth * this.devicePixelRatio;
-      this.container.style.width = window.innerWidth + 'px';
+      this.container.style.width = window.innerWidth + "px";
       this.container.height = window.innerHeight * this.devicePixelRatio;
-      this.container.style.height = window.innerHeight + 'px';
-      this.container.style.maxWidth = 'unset';
+      this.container.style.height = window.innerHeight + "px";
+      this.container.style.maxWidth = "unset";
 
       this.canvas.width = window.innerWidth * this.devicePixelRatio;
-      this.canvas.style.width = window.innerWidth + 'px';
+      this.canvas.style.width = window.innerWidth + "px";
       this.canvas.height = window.innerHeight * this.devicePixelRatio;
-      this.canvas.style.height = window.innerHeight + 'px';
+      this.canvas.style.height = window.innerHeight + "px";
 
       return;
     }
 
     this.canvas.width = this.container.offsetWidth * this.devicePixelRatio;
-    this.canvas.style.width = this.container.offsetWidth + 'px';
+    this.canvas.style.width = this.container.offsetWidth + "px";
 
-    this.canvas.height = (this.container.offsetWidth / imageAspectRatio) * this.devicePixelRatio;
-    this.canvas.style.height = (this.container.offsetWidth / imageAspectRatio) + 'px';
+    this.canvas.height =
+      (this.container.offsetWidth / imageAspectRatio) * this.devicePixelRatio;
+    this.canvas.style.height =
+      this.container.offsetWidth / imageAspectRatio + "px";
   }
 
   onResizedImageLoad(orientation, image, index) {
@@ -727,9 +781,9 @@ class CI360Viewer {
       this.resizedImagesX[index] = image;
     }
 
-    const isAllImagesLoaded = (
-      this.resizedImagesX.length + this.resizedImagesY.length === this.amountX + this.amountY
-    );
+    const isAllImagesLoaded =
+      this.resizedImagesX.length + this.resizedImagesY.length ===
+      this.amountX + this.amountY;
 
     if (isAllImagesLoaded) {
       this.imagesX = this.resizedImagesX;
@@ -741,14 +795,14 @@ class CI360Viewer {
 
   showImageInfo(ctx) {
     ctx.font = `${this.fullscreenView ? 28 : 14}px serif`;
-    ctx.fillStyle = (this.info === 'white' ? '#FFF' : '#000');
+    ctx.fillStyle = this.info === "white" ? "#FFF" : "#000";
 
     const imageDimension = `image-dimension: ${this.container.offsetWidth}x${this.container.offsetHeight}px`;
 
-    const currentXImage = 'active-index-x: ' + this.activeImageX;
-    const currentYImage = 'active-index-y: ' + this.activeImageY;
+    const currentXImage = "active-index-x: " + this.activeImageX;
+    const currentYImage = "active-index-y: " + this.activeImageY;
 
-    const imageIndex = [currentXImage, currentYImage].join(' | ');
+    const imageIndex = [currentXImage, currentYImage].join(" | ");
 
     ctx.fillText(imageDimension, 20, this.container.offsetHeight - 35);
     ctx.fillText(imageIndex, 20, this.container.offsetHeight - 10);
@@ -762,16 +816,25 @@ class CI360Viewer {
 
     this.update();
 
-    if (!responsive || !this.requestResponsiveImages || (this.container.offsetWidth < firstImage.width * 1.5)) return;
+    if (
+      !responsive ||
+      !this.requestResponsiveImages ||
+      this.container.offsetWidth < firstImage.width * 1.5
+    )
+      return;
 
-    this.speedFactor = getSpeedFactor(this.dragSpeed, this.amountX, this.container.offsetWidth);
+    this.speedFactor = getSpeedFactor(
+      this.dragSpeed,
+      this.amountX,
+      this.container.offsetWidth
+    );
     const srcX = generateImagesPath(this.srcXConfig);
 
     preloadImages(
       this.srcXConfig,
       srcX,
-      this.onResizedImageLoad.bind(this, ORIENTATIONS.X),
-    )
+      this.onResizedImageLoad.bind(this, ORIENTATIONS.X)
+    );
 
     if (this.allowSpinY) {
       const srcY = generateImagesPath(this.srcYConfig);
@@ -779,8 +842,8 @@ class CI360Viewer {
       preloadImages(
         this.srcYConfig,
         srcY,
-        this.onResizedImageLoad.bind(this, ORIENTATIONS.Y),
-      )
+        this.onResizedImageLoad.bind(this, ORIENTATIONS.Y)
+      );
     }
   }
 
@@ -799,8 +862,12 @@ class CI360Viewer {
     this.updateContainerAndCanvasSize(image);
 
     if (this.fullscreenView) {
-      const { width, height, offsetX, offsetY } =
-        contain(this.canvas.width, this.canvas.height, image.width, image.height);
+      const { width, height, offsetX, offsetY } = contain(
+        this.canvas.width,
+        this.canvas.height,
+        image.width,
+        image.height
+      );
 
       ctx.drawImage(image, offsetX, offsetY, width, height);
     } else {
@@ -838,22 +905,23 @@ class CI360Viewer {
     const imageWidth = this.canvas.width;
     const imageHeight = this.canvas.height;
 
-    const width = (this.canvas.width * this.zoomIntensity);
-    const height = (this.canvas.height * this.zoomIntensity);
+    const width = this.canvas.width * this.zoomIntensity;
+    const height = this.canvas.height * this.zoomIntensity;
 
-    const pointX = 0 - ((position.x / imageWidth) * (width - this.canvas.width));
-    const pointY = 0 - ((position.y / imageHeight) * (height - this.canvas.height));
+    const pointX = 0 - (position.x / imageWidth) * (width - this.canvas.width);
+    const pointY =
+      0 - (position.y / imageHeight) * (height - this.canvas.height);
 
     ctx.drawImage(image, pointX, pointY, width, height);
   }
 
   updatePercentageInLoader(percentage) {
     if (this.loader) {
-      this.loader.style.width = percentage + '%';
+      this.loader.style.width = percentage + "%";
     }
 
     if (this.view360Icon) {
-      this.view360Icon.innerText = percentage + '%';
+      this.view360Icon.innerText = percentage + "%";
     }
   }
 
@@ -865,8 +933,12 @@ class CI360Viewer {
     this.updateContainerAndCanvasSize(image);
 
     if (this.fullscreenView) {
-      const { offsetX, offsetY, width, height } =
-        contain(this.canvas.width, this.canvas.height, image.width, image.height);
+      const { offsetX, offsetY, width, height } = contain(
+        this.canvas.width,
+        this.canvas.height,
+        image.width,
+        image.height
+      );
 
       this.offset = { x: offsetX, y: offsetY };
 
@@ -903,25 +975,29 @@ class CI360Viewer {
     this.imagesLoaded = true;
 
     if (this.autoplay && this.pointerZoom) {
-      this.container.style.cursor = 'zoom-in';
+      this.container.style.cursor = "zoom-in";
     } else {
-      this.container.style.cursor = 'grab';
+      this.container.style.cursor = "grab";
     }
 
-    this.speedFactor = getSpeedFactor(this.dragSpeed, this.amountX, this.container.offsetWidth);
+    this.speedFactor = getSpeedFactor(
+      this.dragSpeed,
+      this.amountX,
+      this.container.offsetWidth
+    );
 
     if (this.autoplay) {
       this.play();
     }
 
     if (this.disableDrag) {
-      this.container.style.cursor = 'default';
+      this.container.style.cursor = "default";
     }
 
     if (this.view360Icon) {
       if (this.hide360Logo) return this.remove360ViewIcon();
 
-      this.view360Icon.innerText = '';
+      this.view360Icon.innerText = "";
       //TODO [deprecated]: remove setView360Icon in the upcoming versions
       if (this.logoSrc) setView360Icon(this.view360Icon, this.logoSrc);
     }
@@ -946,12 +1022,12 @@ class CI360Viewer {
 
     currentOriginalImage.onload = () => {
       if (this.glass) {
-        this.glass.style.cursor = 'none';
+        this.glass.style.cursor = "none";
       }
     };
 
-    this.glass = document.createElement('div');
-    this.container.style.overflow = 'hidden';
+    this.glass = document.createElement("div");
+    this.container.style.overflow = "hidden";
 
     magnify(
       this.container,
@@ -965,7 +1041,7 @@ class CI360Viewer {
   closeMagnifier() {
     if (!this.glass) return;
 
-    this.container.style.overflow = 'visible';
+    this.container.style.overflow = "visible";
     this.container.removeChild(this.glass);
     this.glass = null;
     this.isMagnifyOpen = false;
@@ -982,8 +1058,11 @@ class CI360Viewer {
   }
 
   setFullscreenEvents(_, event) {
-    if (event.type === 'click') return this.closeFullscreenModal(event);
-    if (event.key === 'Escape' && this.container.parentNode.parentNode === document.body) {
+    if (event.type === "click") return this.closeFullscreenModal(event);
+    if (
+      event.key === "Escape" &&
+      this.container.parentNode.parentNode === document.body
+    ) {
       this.closeFullscreenModalOnEsc(event);
     }
   }
@@ -1042,22 +1121,56 @@ class CI360Viewer {
 
     if (reInitView) {
       const oldElement = this.container;
-      const viewIndex = viewers.findIndex(view => view.id === this.container.id);
+      const viewIndex = viewers.findIndex(
+        (view) => view.id === this.container.id
+      );
 
       container.removeChild(this.innerBox);
       container = container.cloneNode(true);
 
-      container.className = container.className.replace(' initialized', '');
+      container.className = container.className.replace(" initialized", "");
 
       oldElement.parentNode.replaceChild(container, oldElement);
 
       return viewers.splice(viewIndex, 1, new CI360Viewer(container));
     }
 
-    container.style.position = 'relative';
-    container.style.width = '100%';
-    container.style.cursor = 'default';
-    container.setAttribute('draggable', 'false');
+    container.style.position = "relative";
+    container.style.width = "100%";
+    container.style.cursor = "default";
+    container.setAttribute("draggable", "false");
+
+    this.stop();
+    this.init(container, true, hotspotConfigs);
+  }
+
+  updateFolderView(forceUpdate, viewers, hotspotConfigs) {
+    let container = this.container;
+
+    const imageProps = get360ViewProps(container);
+    const srcPropsChanged = isPropsChangeRequireReload(this, imageProps);
+    const reInitView = srcPropsChanged || forceUpdate;
+
+    if (reInitView) {
+      const oldElement = this.container;
+      const viewIndex = viewers.findIndex(
+        (view) => view.id === this.container.id
+      );
+
+      container.removeChild(this.innerBox);
+      container = container.cloneNode(true);
+
+      container.className = container.className.replace(" initialized", "");
+
+      oldElement.parentNode.replaceChild(container, oldElement);
+
+      return viewers.splice(viewIndex, 1, new CI360Viewer(container));
+    }
+
+    container.style.position = "relative";
+    container.style.width = "100%";
+    container.style.cursor = "default";
+    container.setAttribute("draggable", "false");
 
     this.stop();
     this.init(container, true, hotspotConfigs);
@@ -1068,14 +1181,14 @@ class CI360Viewer {
 
     const oldElement = this.container;
     const newElement = oldElement.cloneNode(true);
-    const innerBox = newElement.querySelector('.cloudimage-360-inner-box');
+    const innerBox = newElement.querySelector(".cloudimage-360-inner-box");
 
-    newElement.className = newElement.className.replace(' initialized', '');
-    newElement.style.position = 'relative';
-    newElement.style.width = '100%';
-    newElement.style.cursor = 'default';
-    newElement.setAttribute('draggable', 'false');
-    newElement.style.minHeight = 'auto';
+    newElement.className = newElement.className.replace(" initialized", "");
+    newElement.style.position = "relative";
+    newElement.style.width = "100%";
+    newElement.style.cursor = "default";
+    newElement.setAttribute("draggable", "false");
+    newElement.style.minHeight = "auto";
     newElement.removeChild(innerBox);
     oldElement.parentNode.replaceChild(newElement, oldElement);
   }
@@ -1104,15 +1217,15 @@ class CI360Viewer {
   showFullscreenIcon() {
     if (!this.fullscreenIcon) return;
 
-    this.fullscreenIcon.style.display = 'block';
-    this.fullscreenIcon.style.pointerEvents = 'auto';
+    this.fullscreenIcon.style.display = "block";
+    this.fullscreenIcon.style.pointerEvents = "auto";
   }
 
   hideFullscreenIcon() {
     if (!this.fullscreenIcon) return;
 
-    this.fullscreenIcon.style.display = 'none';
-    this.fullscreenIcon.style.pointerEvents = 'none';
+    this.fullscreenIcon.style.display = "none";
+    this.fullscreenIcon.style.pointerEvents = "none";
   }
 
   addMagnifier() {
@@ -1125,21 +1238,21 @@ class CI360Viewer {
   enableMagnifierIcon() {
     if (!this.magnifierIcon) return;
 
-    this.magnifierIcon.style.display = 'block';
-    this.magnifierIcon.style.pointerEvents = 'auto';
+    this.magnifierIcon.style.display = "block";
+    this.magnifierIcon.style.pointerEvents = "auto";
   }
 
   disableMagnifierIcon() {
     if (!this.magnifierIcon) return;
 
-    this.magnifierIcon.style.display = 'none';
-    this.magnifierIcon.style.pointerEvents = 'none';
+    this.magnifierIcon.style.display = "none";
+    this.magnifierIcon.style.pointerEvents = "none";
   }
 
   closeFullscreenModal(event) {
     event.stopPropagation();
     document.body.removeChild(this.container.parentNode);
-    window.document.body.style.overflow = 'visible';
+    window.document.body.style.overflow = "visible";
   }
 
   add360ViewCircleIcon() {
@@ -1150,13 +1263,13 @@ class CI360Viewer {
   show360ViewCircleIcon() {
     if (!this.view360CircleIcon) return;
 
-    this.view360CircleIcon.style.opacity = '1';
+    this.view360CircleIcon.style.opacity = "1";
   }
 
   hide360ViewCircleIcon() {
     if (!this.view360CircleIcon) return;
 
-    this.view360CircleIcon.style.opacity = '0';
+    this.view360CircleIcon.style.opacity = "0";
   }
 
   remove360ViewCircleIcon() {
@@ -1179,7 +1292,7 @@ class CI360Viewer {
     try {
       this.innerBox.removeChild(this.view360Icon);
       this.view360Icon = null;
-    } catch { }
+    } catch {}
   }
 
   initControls() {
@@ -1189,7 +1302,10 @@ class CI360Viewer {
       this.onSpin();
       this.left();
 
-      this.loopTimeoutId = window.setInterval(this.left.bind(this), this.autoplaySpeed);
+      this.loopTimeoutId = window.setInterval(
+        this.left.bind(this),
+        this.autoplaySpeed
+      );
     };
 
     const onRightStart = (event) => {
@@ -1198,7 +1314,10 @@ class CI360Viewer {
       this.onSpin();
       this.right();
 
-      this.loopTimeoutId = window.setInterval(this.right.bind(this), this.autoplaySpeed);
+      this.loopTimeoutId = window.setInterval(
+        this.right.bind(this),
+        this.autoplaySpeed
+      );
     };
 
     const onTopStart = (event) => {
@@ -1207,7 +1326,10 @@ class CI360Viewer {
       this.onSpin();
       this.top();
 
-      this.loopTimeoutId = window.setInterval(this.top.bind(this), this.autoplaySpeed);
+      this.loopTimeoutId = window.setInterval(
+        this.top.bind(this),
+        this.autoplaySpeed
+      );
     };
 
     const onBottomStart = (event) => {
@@ -1216,8 +1338,11 @@ class CI360Viewer {
       this.onSpin();
       this.bottom();
 
-      this.loopTimeoutId = window.setInterval(this.bottom.bind(this), this.autoplaySpeed);
-    }
+      this.loopTimeoutId = window.setInterval(
+        this.bottom.bind(this),
+        this.autoplaySpeed
+      );
+    };
 
     const onEventEnd = () => {
       this.onFinishSpin();
@@ -1229,14 +1354,14 @@ class CI360Viewer {
       controlReverse: this.controlReverse,
       spinReverse: this.spinReverse,
       stopAtEdges: this.stopAtEdges
-    }
+    };
 
     const controlsTriggers = {
       onLeftStart,
       onRightStart,
       onTopStart,
       onBottomStart,
-      onEventEnd,
+      onEventEnd
     };
 
     const controlsElements = initControls(controlsConfig, controlsTriggers);
@@ -1248,40 +1373,86 @@ class CI360Viewer {
   }
 
   attachEvents(draggable, swipeable, keys) {
-    window.addEventListener('resize', this.requestResizedImages.bind(this));
+    window.addEventListener("resize", this.requestResizedImages.bind(this));
 
-    if ((draggable) && (!this.disableDrag)) {
-      this.container.addEventListener('click', this.mouseClick.bind(this));
-      this.container.addEventListener('mousedown', this.mouseDown.bind(this));
-      this.container.addEventListener('mousemove', this.mouseMove.bind(this));
-      this.container.addEventListener('mouseleave', this.mouseLeave.bind(this));
+    if (draggable && !this.disableDrag) {
+      this.container.addEventListener("click", this.mouseClick.bind(this));
+      this.container.addEventListener("mousedown", this.mouseDown.bind(this));
+      this.container.addEventListener("mousemove", this.mouseMove.bind(this));
+      this.container.addEventListener("mouseleave", this.mouseLeave.bind(this));
 
-      document.addEventListener('mouseup', this.mouseUp.bind(this));
+      document.addEventListener("mouseup", this.mouseUp.bind(this));
     }
 
-    if ((swipeable) && (!this.disableDrag)) {
-      this.container.addEventListener('touchstart', this.touchStart.bind(this), { passive: true });
-      this.container.addEventListener('touchend', this.touchEnd.bind(this));
-      this.container.addEventListener('touchmove', this.touchMove.bind(this));
+    if (swipeable && !this.disableDrag) {
+      this.container.addEventListener(
+        "touchstart",
+        this.touchStart.bind(this),
+        { passive: true }
+      );
+      this.container.addEventListener("touchend", this.touchEnd.bind(this));
+      this.container.addEventListener("touchmove", this.touchMove.bind(this));
     }
 
     if (keys) {
-      document.addEventListener('keydown', this.keyDown.bind(this));
-      document.addEventListener('keyup', this.keyUp.bind(this));
+      document.addEventListener("keydown", this.keyDown.bind(this));
+      document.addEventListener("keyup", this.keyUp.bind(this));
     }
 
-    document.addEventListener('keydown', this.keyDownGeneral.bind(this));
+    document.addEventListener("keydown", this.keyDownGeneral.bind(this));
+  }
+
+  changeFolder(folder, showIndex, viewers) {
+    this.container.setAttribute("data-folder", folder);
+    this.container.setAttribute("show-index", showIndex);
+    this.updateFolderView(false, viewers);
   }
 
   init(container, update = false, hotspotsConfigs = null) {
     let {
-      folder, apiVersion, filenameX, filenameY, imageListX, imageListY, indexZeroBase, amountX, amountY, draggable = true, swipeable = true, keys, keysReverse, bottomCircle, bottomCircleOffset, boxShadow,
-      autoplay, autoplayBehavior, playOnce, speed, autoplayReverse, disableDrag = true, fullscreen, magnifier, ciToken, ciFilters, ciTransformation, lazyload, lazySelector, spinReverse, dragSpeed, stopAtEdges, controlReverse, hide360Logo, logoSrc, pointerZoom, ratio, imageInfo = 'black', 
-      requestResponsiveImages, showIndex
+      folder,
+      apiVersion,
+      filenameX,
+      filenameY,
+      imageListX,
+      imageListY,
+      indexZeroBase,
+      amountX,
+      amountY,
+      draggable = true,
+      swipeable = true,
+      keys,
+      keysReverse,
+      bottomCircle,
+      bottomCircleOffset,
+      boxShadow,
+      autoplay,
+      autoplayBehavior,
+      playOnce,
+      speed,
+      autoplayReverse,
+      disableDrag = true,
+      fullscreen,
+      magnifier,
+      ciToken,
+      ciFilters,
+      ciTransformation,
+      lazyload,
+      lazySelector,
+      spinReverse,
+      dragSpeed,
+      stopAtEdges,
+      controlReverse,
+      hide360Logo,
+      logoSrc,
+      pointerZoom,
+      ratio,
+      imageInfo = "black",
+      requestResponsiveImages,
+      showIndex
     } = get360ViewProps(container);
 
     const ciParams = { ciToken, ciFilters, ciTransformation };
-
     this.folder = folder;
     this.apiVersion = apiVersion;
     this.filenameX = filenameX;
@@ -1291,10 +1462,14 @@ class CI360Viewer {
     this.indexZeroBase = indexZeroBase;
     this.amountX = imageListX ? JSON.parse(imageListX).length : amountX;
     this.amountY = imageListY ? JSON.parse(imageListY).length : amountY;
-    this.allowSpinY = (!!this.amountY);
-    this.activeImageX = autoplayReverse ? this.amountX : 1;
-    this.activeImageY = autoplayReverse ? this.amountY : 1;
-    this.spinY = (autoplayBehavior === AUTOPLAY_BEHAVIOR.SPIN_YX) ? true : false;
+    this.allowSpinY = !!this.amountY;
+    this.activeImageX = autoplayReverse
+      ? this.amountX
+      : Math.max(showIndex + 1, 1);
+    this.activeImageY = autoplayReverse
+      ? this.amountY
+      : Math.max(showIndex + 1, 1);
+    this.spinY = autoplayBehavior === AUTOPLAY_BEHAVIOR.SPIN_YX ? true : false;
     this.bottomCircle = bottomCircle;
     this.bottomCircleOffset = bottomCircleOffset;
     this.boxShadow = boxShadow;
@@ -1305,12 +1480,13 @@ class CI360Viewer {
     this.reversed = autoplayReverse;
     this.disableDrag = disableDrag;
     this.fullscreen = fullscreen;
-    this.magnifier = !this.isMobile && magnifier > 1 ? Math.min(magnifier, 5) : 0;
+    this.magnifier =
+      !this.isMobile && magnifier > 1 ? Math.min(magnifier, 5) : 0;
     this.lazySelector = lazySelector;
     this.spinReverse = spinReverse;
     this.controlReverse = controlReverse;
     this.dragSpeed = Math.max(dragSpeed, 50);
-    this.autoplaySpeed = this.speed * 36 / this.amountX;
+    this.autoplaySpeed = (this.speed * 36) / this.amountX;
     this.stopAtEdges = stopAtEdges;
     this.hide360Logo = hide360Logo;
     this.logoSrc = logoSrc;
@@ -1321,7 +1497,7 @@ class CI360Viewer {
     this.info = imageInfo;
     this.keys = keys;
     this.ratio = ratio && JSON.parse(ratio);
-    this.requestResponsiveImages = requestResponsiveImages
+    this.requestResponsiveImages = requestResponsiveImages;
     this.showIndex = showIndex;
 
     if (update) {
@@ -1353,11 +1529,10 @@ class CI360Viewer {
         this.boxShadowEl = createBoxShadow(this.boxShadow, this.innerBox);
       }
 
-
-    if (hotspotsConfigs && !this.fullscreenView) {
-      this.hotspotsConfigs = generateHotspotsConfigs(hotspotsConfigs);
-      createHotspots(container, this.hotspotsConfigs);
-    }
+      if (hotspotsConfigs && !this.fullscreenView) {
+        this.hotspotsConfigs = generateHotspotsConfigs(hotspotsConfigs);
+        createHotspots(container, this.hotspotsConfigs);
+      }
 
       return this.onAllImagesLoaded();
     }
@@ -1384,8 +1559,8 @@ class CI360Viewer {
       lazySelector,
       amount: this.amountX,
       indexZeroBase,
-      fullscreen: this.fullscreenView,
-    }
+      fullscreen: this.fullscreenView
+    };
 
     this.srcYConfig = {
       ...this.srcXConfig,
@@ -1393,7 +1568,7 @@ class CI360Viewer {
       orientation: ORIENTATIONS.Y,
       imageList: imageListY,
       amount: this.amountY
-    }
+    };
 
     const srcX = generateImagesPath(this.srcXConfig);
 
@@ -1406,26 +1581,27 @@ class CI360Viewer {
 
       const totalAmount = this.amountX + this.amountY;
       const totalLoadedImages = this.imagesX.length + this.imagesY.length;
-      const isFirstImageLoaded = !index && orientation !== ORIENTATIONS.Y && this.showIndex === index;
-      const percentage = Math.round(totalLoadedImages / totalAmount * 100);
+      const isFirstImageLoaded =
+        this.showIndex === index && orientation !== ORIENTATIONS.Y;
+      const percentage = Math.round((totalLoadedImages / totalAmount) * 100);
 
       this.updatePercentageInLoader(percentage);
       if (isFirstImageLoaded) {
         this.onFirstImageLoaded(image);
       } else if (this.autoplay) {
-        this.moveRight(index)
+        this.moveRight(index);
       }
 
       if (this.isReady()) {
         this.onAllImagesLoaded();
       }
-    }
+    };
 
     const loadImages = () => {
       preloadImages(
         this.srcXConfig,
         srcX,
-        (onImageLoad.bind(this, ORIENTATIONS.X))
+        onImageLoad.bind(this, ORIENTATIONS.X)
       );
 
       if (this.allowSpinY) {
@@ -1437,14 +1613,14 @@ class CI360Viewer {
           onImageLoad.bind(this, ORIENTATIONS.Y)
         );
       }
-    }
+    };
 
     if (lazyload) {
       const onFirstImageLoad = (image) => {
         this.innerBox.removeChild(image);
 
         loadImages();
-      }
+      };
 
       initLazyload(srcX, this.srcXConfig, onFirstImageLoad);
     } else {

@@ -81,6 +81,11 @@ function update(id = null, forceUpdate = false, hotspotConfigs = null) {
   }
 }
 
+function changeFolder(folder, showIndex) {
+  window.CI360._viewers
+    .forEach(viewer => { viewer.changeFolder(folder, showIndex, window.CI360._viewers); });
+}
+
 function isNoViewers() {
   return !(window.CI360._viewers && window.CI360._viewers.length > 0);
 }
@@ -105,6 +110,7 @@ window.CI360.getActiveIndexByID = getActiveIndexByID;
 window.CI360.update = update;
 window.CI360.add = add;
 window.CI360.addHotspots = addHotspots;
+window.CI360.changeFolder = changeFolder;
 
 if (!window.CI360.notInitOnLoad) {
   init();
