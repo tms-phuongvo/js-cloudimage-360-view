@@ -1,0 +1,26 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": [
+            "last 2 versions",
+            "ie 11"
+          ]
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    "array-includes",
+    "@babel/plugin-transform-runtime"
+  ],
+  "env": {
+    "production": {
+      "presets": [
+        "minify"
+      ]
+    }
+  }
+}
