@@ -9,8 +9,7 @@ export const loadImagesRelativeToContainerSize = (imagesSrcs, cb, index = 0) => 
   const imageLoadCallback = (image) => {
     const _index = index + 1;
 
-
-    cb(image, index);
+    cb(image, imageSrc.order, index);
     loadImagesRelativeToContainerSize(imagesSrcs, cb, _index);
   }
 

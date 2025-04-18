@@ -1559,7 +1559,8 @@ class CI360Viewer {
       lazySelector,
       amount: this.amountX,
       indexZeroBase,
-      fullscreen: this.fullscreenView
+      fullscreen: this.fullscreenView,
+      showIndex: this.showIndex
     };
 
     this.srcYConfig = {
@@ -1572,7 +1573,7 @@ class CI360Viewer {
 
     const srcX = generateImagesPath(this.srcXConfig);
 
-    const onImageLoad = (orientation, image, index) => {
+    const onImageLoad = (orientation, image, order, index) => {
       if (orientation === ORIENTATIONS.X) {
         this.imagesX[index] = image;
       } else {
@@ -1582,7 +1583,7 @@ class CI360Viewer {
       const totalAmount = this.amountX + this.amountY;
       const totalLoadedImages = this.imagesX.length + this.imagesY.length;
       const isFirstImageLoaded =
-        this.showIndex === index && orientation !== ORIENTATIONS.Y;
+        this.showIndex === order && orientation !== ORIENTATIONS.Y;
       const percentage = Math.round((totalLoadedImages / totalAmount) * 100);
 
       this.updatePercentageInLoader(percentage);

@@ -1,8 +1,8 @@
-export const loadImageAsPromise = (src, cb) => {
+export const loadImageAsPromise = (data, cb) => {
   const image = new Image();
-  image.src = src;
+  image.src = data.src;
 
-  const onImageLoad = () => cb(image);
+  const onImageLoad = () => cb(image, data.order, data.index);
 
   image.onload = onImageLoad
   image.onerror = onImageLoad

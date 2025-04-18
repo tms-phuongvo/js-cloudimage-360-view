@@ -5,6 +5,7 @@ export const prepareImagesFromFolder = (imagesSrc, srcConfig, loadOriginalImages
   const { amount, indexZeroBase } = srcConfig || {};
 
   return [...new Array(amount)].map((_item, index) => {
+
     const nextZeroFilledIndex = pad(index + 1, indexZeroBase);
     const imageSrc = imagesSrc.replace('{index}', nextZeroFilledIndex);
 
@@ -13,9 +14,15 @@ export const prepareImagesFromFolder = (imagesSrc, srcConfig, loadOriginalImages
         .replace(ORGINAL_SIZE_REGEX, '')
         .replace(AND_SYMBOL_REGEX, '?');
 
-      return imageOriginalSrc;
+      return {
+        src: imageOriginalSrc,
+        order: index,
+      };
     }
 
-    return imageSrc;
+    return {
+      src: imageSrc,
+      order: index,
+    };
   });
 };

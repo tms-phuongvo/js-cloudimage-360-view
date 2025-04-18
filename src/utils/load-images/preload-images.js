@@ -4,7 +4,7 @@ import { prepareImagesFromFolder } from './images-from-folder/prepare-images-fro
 import { prepareImagesFromList } from './images-from-list/prepare-images-from-list';
 
 export const preloadImages = (srcConfig, imagesSrc, cb) => {
-  const { imageList } = srcConfig || {};
+  const { imageList, showIndex } = srcConfig || {};
   let imagesSrcs = [];
 
   if (imageList) {
@@ -17,6 +17,12 @@ export const preloadImages = (srcConfig, imagesSrc, cb) => {
     }
   } else {
     imagesSrcs = prepareImagesFromFolder(imagesSrc, srcConfig);
+  }
+
+  if (showIndex) {
+    const firstImage = imagesSrcs[showIndex];
+    imagesSrcs = imagesSrcs.filter(({ order }) => order !== firstImage.order);
+    imagesSrcs.unshift(firstImage);
   }
 
   loadImagesRelativeToContainerSize(imagesSrcs, cb);
