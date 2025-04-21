@@ -19,10 +19,10 @@ export const preloadImages = (srcConfig, imagesSrc, cb) => {
     imagesSrcs = prepareImagesFromFolder(imagesSrc, srcConfig);
   }
 
-  if (showIndex) {
-    const firstImage = imagesSrcs[showIndex];
-    imagesSrcs = imagesSrcs.filter(({ order }) => order !== firstImage.order);
-    imagesSrcs.unshift(firstImage);
+  if (showIndex && showIndex !== 0) {
+    const sliceImages = imagesSrcs.slice(showIndex);
+    const afterSliceImages = imagesSrcs.slice(0, showIndex);
+    imagesSrcs = [...sliceImages, ...afterSliceImages];
   }
 
   loadImagesRelativeToContainerSize(imagesSrcs, cb);

@@ -1405,6 +1405,8 @@ class CI360Viewer {
   changeFolder(folder, showIndex, viewers) {
     this.container.setAttribute("data-folder", folder);
     this.container.setAttribute("show-index", showIndex);
+    this.imagesX = [];
+    this.imagesY = [];
     this.updateFolderView(false, viewers);
   }
 
@@ -1575,13 +1577,13 @@ class CI360Viewer {
 
     const onImageLoad = (orientation, image, order, index) => {
       if (orientation === ORIENTATIONS.X) {
-        this.imagesX[index] = image;
+        this.imagesX[order] = image;
       } else {
-        this.imagesY[index] = image;
+        this.imagesY[order] = image;
       }
 
       const totalAmount = this.amountX + this.amountY;
-      const totalLoadedImages = this.imagesX.length + this.imagesY.length;
+      const totalLoadedImages = Object.keys(this.imagesX).length + Object.keys(this.imagesY).length;
       const isFirstImageLoaded =
         this.showIndex === order && orientation !== ORIENTATIONS.Y;
       const percentage = Math.round((totalLoadedImages / totalAmount) * 100);
